@@ -1,4 +1,4 @@
-# Fork iTalk de `odoo/upgrade-util` — rama `19.0-italk`
+# Fork Erpyca de `odoo/upgrade-util` — rama `19.0-italk`
 
 ## Para que existe
 
@@ -44,22 +44,38 @@ ningun directorio con nombre de modulo y no ejecuta nada por su cuenta.
 En el `requirements.txt` del repo del cliente:
 
 ```
-git+https://github.com/iTalkarg/upgrade-util@19.0-italk
+git+https://github.com/Erpyca/upgrade-util@19.0-italk
 ```
 
 ## Como se actualiza
 
-Traer los cambios de upstream y volver a sacar los directorios de scripts:
+Como todo fork de la flota, `19.0-italk` recibe upstream **por merge, nunca por
+rebase**, y se publica con push normal: **ningun `--force`**. Un rebase reescribe
+el commit que saca los scripts y deja huerfano cualquier commit al que apunte un
+`requirements.txt` o un build ya hecho. `master` es espejo de upstream, sin
+cambios propios.
 
 ```bash
 git remote add upstream https://github.com/odoo/upgrade-util.git   # una sola vez
 git fetch upstream
-git rebase upstream/master        # resolver dejando borrados src/base, src/mail, src/spreadsheet
-git push --force-with-lease origin 19.0-italk
+git checkout master
+git merge --ff-only upstream/master
+git push origin master
+
+git checkout 19.0-italk
+git merge master -m "Merge upstream master en 19.0-italk"
+# Conflictos modify/delete en src/base, src/mail o src/spreadsheet: se resuelven
+# borrando (git rm). Upstream puede sumar directorios nuevos con nombre de modulo
+# bajo src/: tambien se borran en el mismo merge.
+ls src            # tiene que quedar solo: testing.py  util
+git push origin 19.0-italk            # push normal
 ```
 
-Solo hace falta cuando un script de migracion de ADHOC necesite una utilidad
-nueva. La libreria es estable; no requiere seguimiento continuo.
+Los clientes declaran la rama, no un commit: el proximo build de cada uno toma
+la punta nueva sin re-pinear.
+
+Solo hace falta cuando un script de migracion necesite una utilidad nueva. La
+libreria es estable; no requiere seguimiento continuo.
 
 ## Licencia
 
