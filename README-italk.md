@@ -25,8 +25,10 @@ helper de tests (`src/testing.py`).
 **Por que.** Odoo descubre scripts de migracion recorriendo `odoo.upgrade.__path__`,
 que incluye lo instalado por pip. Si se instala el paquete completo, Odoo
 encuentra los scripts de `src/base/0.0.0/` y los ejecuta **en cualquier build
-donde el modulo `base` cambie de version** (es decir, cada vez que la plataforma
-actualiza el nucleo de Odoo). Entre ellos hay uno que hace:
+donde suba la version del modulo `base`** (`odoo/modules/migration.py`). Dentro de
+una serie `base` no cambia de version (`1.3` en 18.0 y 19.0): en la practica se
+disparan en la migracion de version mayor, y el fork evita que corran en una que
+no orquesta la plataforma. Entre ellos hay uno que hace:
 
 ```sql
 UPDATE ir_module_module SET state = 'to upgrade' WHERE state = 'installed'
